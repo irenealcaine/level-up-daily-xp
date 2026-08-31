@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View } from "react-native"
+import { useTheme } from "../contexts/ThemeContext"
 
 export default function Section2Screen() {
+  const { theme } = useTheme()
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sección 2</Text>
-      <Text style={styles.text}>Contenido de la sección 2</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.textSecondary }]}>Sección 2</Text>
     </View>
   )
 }
@@ -12,19 +14,11 @@ export default function Section2Screen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a2e",
-    padding: 20,
     justifyContent: "center",
     alignItems: "center",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#e94560",
-    marginBottom: 12,
-  },
-  text: {
-    fontSize: 16,
-    color: "#aaa",
+    fontSize: 20,
+    fontWeight: "500",
   },
 })
