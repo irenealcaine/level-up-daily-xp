@@ -1,5 +1,10 @@
+import { ActivityIndicator, View } from "react-native"
 import { createDrawerNavigator } from "@react-navigation/drawer"
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { useTheme } from "../contexts/ThemeContext"
+import { useAuth } from "../contexts/AuthContext"
+import LoginScreen from "../screens/LoginScreen"
+import RegisterScreen from "../screens/RegisterScreen"
 import HomeScreen from "../screens/HomeScreen"
 import Section1Screen from "../screens/Section1Screen"
 import Section2Screen from "../screens/Section2Screen"
@@ -7,8 +12,25 @@ import Section3Screen from "../screens/Section3Screen"
 import SettingsScreen from "../screens/SettingsScreen"
 
 const Drawer = createDrawerNavigator()
+const Stack = createNativeStackNavigator()
 
-export default function AppNavigator() {
+function AuthStack() {
+  const { theme } = useTheme()
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.background },
+      }}
+    >
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function AppDrawer() {
   const { theme } = useTheme()
 
   return (
@@ -51,4 +73,19 @@ export default function AppNavigator() {
       <Drawer.Screen name="Settings" component={SettingsScreen} options={{ title: "Ajustes" }} />
     </Drawer.Navigator>
   )
+}
+
+export default function AppNavigator() {
+  const { user, loading } = useAuth()
+  const { theme } = useTheme()
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.background }}>
+        <ActivityIndicator size="large" color={theme.text} />
+      </View>
+    )
+  }
+
+  return user ? <AppDrawer /> : <AuthStack />
 }

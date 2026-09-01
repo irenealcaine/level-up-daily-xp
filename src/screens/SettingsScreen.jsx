@@ -1,8 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
 import { useTheme } from "../contexts/ThemeContext"
+import { useAuth } from "../contexts/AuthContext"
 
 export default function SettingsScreen() {
   const { theme, isDark, toggleTheme } = useTheme()
+  const { logout, userProfile } = useAuth()
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -25,6 +27,16 @@ export default function SettingsScreen() {
           />
         </TouchableOpacity>
       </View>
+
+      {userProfile && (
+        <TouchableOpacity
+          style={[styles.card, { backgroundColor: theme.surface, marginTop: 12 }]}
+          activeOpacity={0.7}
+          onPress={logout}
+        >
+          <Text style={[styles.label, { color: "#e53935" }]}>Cerrar sesión</Text>
+        </TouchableOpacity>
+      )}
     </View>
   )
 }
