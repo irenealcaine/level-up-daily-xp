@@ -18,9 +18,12 @@ export default function RegisterScreen({ navigation }) {
   const [nick, setNick] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState("")
+  const [registered, setRegistered] = useState(false)
 
   async function handleRegister() {
     setError("")
@@ -36,9 +39,14 @@ export default function RegisterScreen({ navigation }) {
       setError("La contraseña debe tener al menos 6 caracteres")
       return
     }
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden")
+      return
+    }
     setLoading(true)
     try {
       await register(nick.trim(), email.trim(), password)
+      setRegistered(true)
     } catch (e) {
       setError("No se pudo crear la cuenta. Inténtalo de nuevo.")
     } finally {
@@ -52,66 +60,104 @@ export default function RegisterScreen({ navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.inner}>
-        <Text style={[styles.title, { color: theme.text }]}>Crear cuenta</Text>
+        {registered ? (
+          <>
+            <Ionicons name="mail-open-outline" size={64} color={theme.text} style={styles.successIcon} />
+            <Text style={[styles.title, { color: theme.text, textAlign: "center" }]}>¡Cuenta creada!</Text>
+            <Text style={[styles.successText, { color: theme.textSecondary }]}>
+              Hemos enviado un email de verificación a {email}. Revisa tu bandeja de entrada y confirma tu correo para poder iniciar sesión.
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text style={[styles.link, { color: theme.link }]}>
+                Volver al inicio de sesión
+              </Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={[styles.title, { color: theme.text }]}>Crear cuenta</Text>
 
-        {error ? <Text style={[styles.error, { color: theme.error || "#ff3b30" }]}>{error}</Text> : null}
+            {error ? <Text style={[styles.error, { color: theme.error || "#ff3b30" }]}>{error}</Text> : null}
 
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-          placeholder="Nick de usuario"
-          placeholderTextColor={theme.textSecondary}
-          value={nick}
-          onChangeText={setNick}
-          autoCapitalize="none"
-        />
-
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-          placeholder="Email"
-          placeholderTextColor={theme.textSecondary}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={[styles.input, styles.passwordInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-            placeholder="Contraseña"
-            placeholderTextColor={theme.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            style={styles.eyeButton}
-            onPress={() => setShowPassword(!showPassword)}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off" : "eye"}
-              size={22}
-              color={theme.textSecondary}
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+              placeholder="Nick de usuario"
+              placeholderTextColor={theme.textSecondary}
+              value={nick}
+              onChangeText={setNick}
+              autoCapitalize="none"
             />
-          </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: theme.text }]}
-          onPress={handleRegister}
-          disabled={loading}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.buttonText, { color: theme.background }]}>
-            {loading ? "Creando..." : "Registrarse"}
-          </Text>
-        </TouchableOpacity>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+              placeholder="Email"
+              placeholderTextColor={theme.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
 
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={[styles.link, { color: theme.link }]}>
-            ¿Ya tienes cuenta? Inicia sesión
-          </Text>
-        </TouchableOpacity>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, styles.passwordInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                placeholder="Contraseña"
+                placeholderTextColor={theme.textSecondary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={22}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, styles.passwordInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                placeholder="Repetir contraseña"
+                placeholderTextColor={theme.textSecondary}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <Ionicons
+                  name={showConfirmPassword ? "eye-off" : "eye"}
+                  size={22}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: theme.text }]}
+              onPress={handleRegister}
+              disabled={loading}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.buttonText, { color: theme.background }]}>
+                {loading ? "Creando..." : "Registrarse"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Text style={[styles.link, { color: theme.link }]}>
+                ¿Ya tienes cuenta? Inicia sesión
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </KeyboardAvoidingView>
   )
@@ -175,5 +221,15 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 16,
     textAlign: "center",
+  },
+  successIcon: {
+    marginBottom: 24,
+    alignSelf: "center",
+  },
+  successText: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: "center",
+    marginBottom: 32,
   },
 })

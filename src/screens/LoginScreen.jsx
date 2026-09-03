@@ -31,7 +31,11 @@ export default function LoginScreen({ navigation }) {
     try {
       await login(email.trim(), password)
     } catch (e) {
-      setError("Email o contraseña incorrectos")
+      if (e.message === "EMAIL_NOT_VERIFIED") {
+        setError("Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.")
+      } else {
+        setError("Email o contraseña incorrectos")
+      }
     } finally {
       setLoading(false)
     }
