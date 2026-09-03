@@ -1,16 +1,16 @@
 import { useState } from "react"
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native"
+import { StyleSheet, Text, View, KeyboardAvoidingView, Platform } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
+import Input from "../components/Input"
+import PasswordInput from "../components/PasswordInput"
+import Button from "../components/Button"
 
 export default function RegisterScreen({ navigation }) {
   const { theme } = useTheme()
@@ -20,10 +20,14 @@ export default function RegisterScreen({ navigation }) {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState("")
   const [registered, setRegistered] = useState(false)
+
+  const iconScale = useSharedValue(1)
+
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale.value }],
+  }))
 
   async function handleRegister() {
     setError("")
@@ -46,6 +50,9 @@ export default function RegisterScreen({ navigation }) {
     setLoading(true)
     try {
       await register(nick.trim(), email.trim(), password)
+      iconScale.value = withSpring(1.2, { damping: 10, stiffness: 200 }, () => {
+        iconScale.value = withSpring(1, { damping: 10, stiffness: 200 })
+      })
       setRegistered(true)
     } catch (e) {
       setError("No se pudo crear la cuenta. Inténtalo de nuevo.")
@@ -62,100 +69,82 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.inner}>
         {registered ? (
           <>
-            <Ionicons name="mail-open-outline" size={64} color={theme.text} style={styles.successIcon} />
-            <Text style={[styles.title, { color: theme.text, textAlign: "center" }]}>¡Cuenta creada!</Text>
+            <Animated.View style={[styles.iconContainer, iconStyle]}>
+              <Ionicons name="mail-open-outline" size={64} color={theme.colors.primary} />
+            </Animated.View>
+            <Text style={[styles.title, { color: theme.text, textAlign: "center" }]}>
+              ¡Cuenta creada!
+            </Text>
             <Text style={[styles.successText, { color: theme.textSecondary }]}>
               Hemos enviado un email de verificación a {email}. Revisa tu bandeja de entrada y confirma tu correo para poder iniciar sesión.
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-              <Text style={[styles.link, { color: theme.link }]}>
-                Volver al inicio de sesión
-              </Text>
-            </TouchableOpacity>
+            <Button
+              variant="primary"
+              size="lg"
+              onPress={() => navigation.navigate("Login")}
+              icon="arrow-back-outline"
+              style={styles.button}
+            >
+              Volver al inicio de sesión
+            </Button>
           </>
         ) : (
           <>
             <Text style={[styles.title, { color: theme.text }]}>Crear cuenta</Text>
 
-            {error ? <Text style={[styles.error, { color: theme.error || "#ff3b30" }]}>{error}</Text> : null}
+            {error ? (
+              <Text style={[styles.error, { color: theme.colors.error }]}>
+                {error}
+              </Text>
+            ) : null}
 
-            <TextInput
-              style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+            <Input
               placeholder="Nick de usuario"
-              placeholderTextColor={theme.textSecondary}
               value={nick}
               onChangeText={setNick}
               autoCapitalize="none"
+              icon="person-outline"
             />
 
-            <TextInput
-              style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+            <Input
               placeholder="Email"
-              placeholderTextColor={theme.textSecondary}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
+              icon="mail-outline"
             />
 
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                placeholder="Contraseña"
-                placeholderTextColor={theme.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-off" : "eye"}
-                  size={22}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
+            <PasswordInput
+              placeholder="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+            />
 
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                placeholder="Repetir contraseña"
-                placeholderTextColor={theme.textSecondary}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showConfirmPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                <Ionicons
-                  name={showConfirmPassword ? "eye-off" : "eye"}
-                  size={22}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
+            <PasswordInput
+              placeholder="Repetir contraseña"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
 
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: theme.text }]}
+            <Button
+              variant="primary"
+              size="lg"
               onPress={handleRegister}
               disabled={loading}
-              activeOpacity={0.7}
+              icon={loading ? "hourglass-outline" : "person-add-outline"}
+              style={styles.button}
             >
-              <Text style={[styles.buttonText, { color: theme.background }]}>
-                {loading ? "Creando..." : "Registrarse"}
-              </Text>
-            </TouchableOpacity>
+              {loading ? "Creando..." : "Registrarse"}
+            </Button>
 
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={[styles.link, { color: theme.link }]}>
-                ¿Ya tienes cuenta? Inicia sesión
-              </Text>
-            </TouchableOpacity>
+            <Button
+              variant="ghost"
+              size="sm"
+              onPress={() => navigation.goBack()}
+            >
+              ¿Ya tienes cuenta? Inicia sesión
+            </Button>
           </>
         )}
       </View>
@@ -173,58 +162,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   title: {
-    fontSize: 30,
+    fontSize: 34,
     fontWeight: "700",
-    marginBottom: 40,
     letterSpacing: -0.5,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  passwordInput: {
-    flex: 1,
-    marginBottom: 0,
-  },
-  eyeButton: {
-    position: "absolute",
-    right: 14,
-  },
-  button: {
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-    marginTop: 8,
-    marginBottom: 20,
-  },
-  buttonText: {
-    fontSize: 17,
-    fontWeight: "600",
-  },
-  link: {
-    fontSize: 15,
-    fontWeight: "600",
-    textAlign: "center",
-    marginTop: 4,
+    marginBottom: 32,
   },
   error: {
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 16,
-    textAlign: "center",
   },
-  successIcon: {
+  button: {
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  iconContainer: {
+    alignItems: "center",
     marginBottom: 24,
-    alignSelf: "center",
   },
   successText: {
     fontSize: 16,

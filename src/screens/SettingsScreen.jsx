@@ -1,47 +1,90 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
+import { StyleSheet, Text, View } from "react-native"
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
+import Header from "../components/Header"
+import Card from "../components/Card"
+import Avatar from "../components/Avatar"
+import Button from "../components/Button"
 
 export default function SettingsScreen() {
   const { theme, isDark, toggleTheme } = useTheme()
   const { logout, userProfile } = useAuth()
+  const toggleX = useSharedValue(isDark ? 22 : 2)
+
+  const knobStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: toggleX.value }],
+  }))
+
+  const handleToggle = () => {
+    toggleX.value = withSpring(isDark ? 2 : 22, { damping: 15, stiffness: 300 })
+    toggleTheme()
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>Ajustes</Text>
-      <View style={[styles.card, { backgroundColor: theme.surface }]}>
-        <Text style={[styles.label, { color: theme.text }]}>Modo oscuro</Text>
-        <TouchableOpacity
-          style={[styles.toggle, { backgroundColor: isDark ? theme.text : theme.toggle }]}
-          activeOpacity={0.7}
-          onPress={toggleTheme}
+      <Header title="Ajustes" />
+
+      <View style={styles.content}>
+        <Card variant="default" style={styles.card}>
+          <View style={styles.cardRow}>
+            <View style={styles.cardInfo}>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>
+                Modo oscuro
+              </Text>
+              <Text style={[styles.cardDescription, { color: theme.textSecondary }]}>
+                {isDark ? "Activado" : "Desactivado"}
+              </Text>
+            </View>
+            <Animated.View
+              style={[
+                styles.toggle,
+                {
+                  backgroundColor: isDark ? theme.colors.primary : theme.toggle,
+                },
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.knob,
+                  knobStyle,
+                  { backgroundColor: theme.toggleKnob },
+                ]}
+              />
+            </Animated.View>
+          </View>
+        </Card>
+
+        {userProfile && (
+          <Card variant="default" style={styles.card}>
+            <View style={styles.profileRow}>
+              <Avatar name={userProfile.nick || "U"} size="md" />
+              <View style={styles.profileInfo}>
+                <Text style={[styles.profileName, { color: theme.text }]}>
+                  {userProfile.nick}
+                </Text>
+                <Text style={[styles.profileEmail, { color: theme.textSecondary }]}>
+                  {userProfile.email}
+                </Text>
+              </View>
+            </View>
+          </Card>
+        )}
+
+        <Button
+          variant="outline"
+          size="lg"
+          onPress={logout}
+          icon="log-out-outline"
+          style={[styles.logoutButton, { borderColor: theme.colors.error }]}
         >
-          <View
-            style={[
-              styles.knob,
-              {
-                backgroundColor: theme.toggleKnob,
-                transform: [{ translateX: isDark ? 22 : 2 }],
-              },
-            ]}
-          />
-        </TouchableOpacity>
+          Cerrar sesión
+        </Button>
       </View>
-
-      {userProfile && (
-        <View style={[styles.card, { backgroundColor: theme.surface, marginTop: 12 }]}>
-          <Text style={[styles.label, { color: theme.text }]}>Sesión activa</Text>
-          <Text style={[styles.email, { color: theme.textSecondary }]}>{userProfile.email}</Text>
-        </View>
-      )}
-
-      <TouchableOpacity
-        style={[styles.logoutButton, { backgroundColor: theme.surface, marginTop: 12 }]}
-        activeOpacity={0.7}
-        onPress={logout}
-      >
-        <Text style={[styles.logoutText, { color: "#e53935" }]}>Cerrar sesión</Text>
-      </TouchableOpacity>
     </View>
   )
 }
@@ -49,26 +92,29 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
+  },
+  content: {
+    flex: 1,
     paddingHorizontal: 24,
   },
-  title: {
-    fontSize: 34,
-    fontWeight: "700",
-    marginBottom: 40,
-    letterSpacing: -0.5,
-  },
   card: {
+    marginBottom: 12,
+  },
+  cardRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    borderRadius: 12,
   },
-  label: {
+  cardInfo: {
+    flex: 1,
+  },
+  cardTitle: {
     fontSize: 17,
-    fontWeight: "500",
+    fontWeight: "600",
+  },
+  cardDescription: {
+    fontSize: 14,
+    marginTop: 2,
   },
   toggle: {
     width: 48,
@@ -82,18 +128,23 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
   },
-  email: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-  logoutButton: {
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+  profileRow: {
+    flexDirection: "row",
     alignItems: "center",
   },
-  logoutText: {
+  profileInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  profileName: {
     fontSize: 17,
     fontWeight: "600",
+  },
+  profileEmail: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  logoutButton: {
+    marginTop: 12,
   },
 })

@@ -1,16 +1,10 @@
 import { useState } from "react"
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native"
-import { Ionicons } from "@expo/vector-icons"
+import { StyleSheet, Text, View, KeyboardAvoidingView, Platform } from "react-native"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
+import Input from "../components/Input"
+import PasswordInput from "../components/PasswordInput"
+import Button from "../components/Button"
 
 export default function LoginScreen({ navigation }) {
   const { theme } = useTheme()
@@ -18,7 +12,6 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [resetSent, setResetSent] = useState(false)
 
@@ -65,67 +58,60 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.inner}>
         <Text style={[styles.title, { color: theme.text }]}>Iniciar sesión</Text>
 
-        {error ? <Text style={[styles.error, { color: theme.error || "#ff3b30" }]}>{error}</Text> : null}
+        {error ? (
+          <Text style={[styles.error, { color: theme.colors.error }]}>
+            {error}
+          </Text>
+        ) : null}
 
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+        <Input
           placeholder="Email"
-          placeholderTextColor={theme.textSecondary}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          icon="mail-outline"
         />
 
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={[styles.input, styles.passwordInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-            placeholder="Contraseña"
-            placeholderTextColor={theme.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            style={styles.eyeButton}
-            onPress={() => setShowPassword(!showPassword)}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off" : "eye"}
-              size={22}
-              color={theme.textSecondary}
-            />
-          </TouchableOpacity>
-        </View>
+        <PasswordInput
+          placeholder="Contraseña"
+          value={password}
+          onChangeText={setPassword}
+        />
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: theme.text }]}
+        <Button
+          variant="primary"
+          size="lg"
           onPress={handleLogin}
           disabled={loading}
-          activeOpacity={0.7}
+          icon={loading ? "hourglass-outline" : "log-in-outline"}
+          style={styles.button}
         >
-          <Text style={[styles.buttonText, { color: theme.background }]}>
-            {loading ? "Entrando..." : "Entrar"}
-          </Text>
-        </TouchableOpacity>
+          {loading ? "Entrando..." : "Entrar"}
+        </Button>
 
         {resetSent ? (
-          <Text style={[styles.success, { color: theme.success || "#34c759" }]}>
+          <Text style={[styles.success, { color: theme.colors.success }]}>
             Email de recuperación enviado. Revisa tu bandeja de entrada.
           </Text>
         ) : (
-          <TouchableOpacity onPress={handleResetPassword}>
-            <Text style={[styles.link, { color: theme.link }]}>
-              ¿Olvidaste tu contraseña?
-            </Text>
-          </TouchableOpacity>
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={handleResetPassword}
+          >
+            ¿Olvidaste tu contraseña?
+          </Button>
         )}
 
-        <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-          <Text style={[styles.link, { color: theme.link }]}>
-            ¿No tienes cuenta? Regístrate
-          </Text>
-        </TouchableOpacity>
+        <Button
+          variant="ghost"
+          size="sm"
+          onPress={() => navigation.navigate("Register")}
+          style={styles.registerButton}
+        >
+          ¿No tienes cuenta? Regístrate
+        </Button>
       </View>
     </KeyboardAvoidingView>
   )
@@ -141,59 +127,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   title: {
-    fontSize: 30,
+    fontSize: 34,
     fontWeight: "700",
-    marginBottom: 40,
     letterSpacing: -0.5,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  passwordInput: {
-    flex: 1,
-    marginBottom: 0,
-  },
-  eyeButton: {
-    position: "absolute",
-    right: 14,
-  },
-  button: {
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-    marginTop: 8,
-    marginBottom: 20,
-  },
-  buttonText: {
-    fontSize: 17,
-    fontWeight: "600",
-  },
-  link: {
-    fontSize: 15,
-    fontWeight: "600",
-    textAlign: "center",
-    marginTop: 4,
+    marginBottom: 32,
   },
   error: {
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 16,
-    textAlign: "center",
   },
   success: {
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 16,
-    textAlign: "center",
+  },
+  button: {
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  registerButton: {
+    marginTop: 8,
   },
 })

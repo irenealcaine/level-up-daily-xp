@@ -1,47 +1,62 @@
 import { useState } from "react"
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native"
+import { StyleSheet, TouchableOpacity } from "react-native"
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated"
 import { Ionicons } from "@expo/vector-icons"
+import Input from "./Input"
+import { useTheme } from "../contexts/ThemeContext"
 
-export default function PasswordInput({ value, onChangeText, placeholder, theme }) {
+export default function PasswordInput({
+  label,
+  error,
+  value,
+  onChangeText,
+  placeholder,
+  style,
+}) {
+  const { theme } = useTheme()
   const [visible, setVisible] = useState(false)
+  const rotation = useSharedValue(0)
+
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }))
+
+  const toggleVisibility = () => {
+    rotation.value = withSpring(visible ? 0 : 180, { damping: 15, stiffness: 300 })
+    setVisible(!visible)
+  }
 
   return (
-    <View style={[styles.wrapper, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-      <TextInput
-        style={[styles.input, { color: theme.text }]}
-        placeholder={placeholder}
-        placeholderTextColor={theme.textSecondary}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={!visible}
-        autoCapitalize="none"
-      />
-      <TouchableOpacity onPress={() => setVisible(!visible)} style={styles.eye}>
-        <Ionicons
-          name={visible ? "eye-off-outline" : "eye-outline"}
-          size={20}
-          color={theme.textSecondary}
-        />
-      </TouchableOpacity>
-    </View>
+    <Input
+      label={label}
+      error={error}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      secureTextEntry={!visible}
+      autoCapitalize="none"
+      style={style}
+      rightElement={
+        <TouchableOpacity onPress={toggleVisibility} style={styles.eye}>
+          <Animated.View style={iconStyle}>
+            <Ionicons
+              name={visible ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color={theme.textSecondary}
+            />
+          </Animated.View>
+        </TouchableOpacity>
+      }
+    />
   )
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
   eye: {
-    paddingHorizontal: 14,
+    padding: 4,
   },
 })

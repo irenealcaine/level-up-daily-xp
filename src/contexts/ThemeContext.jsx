@@ -1,43 +1,42 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
+import { useColorScheme } from "react-native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { colors, dark, light, typography, spacing, borderRadius, shadows } from "../styles/theme"
 
 const ThemeContext = createContext()
 
-const themes = {
-  dark: {
-    background: "#0a0a0a",
-    surface: "#1a1a1a",
-    text: "#fff",
-    textSecondary: "#888",
-    link: "#6ea8fe",
-    border: "#333",
-    headerBg: "#0a0a0a",
-    drawerBg: "#111",
-    drawerActive: "#fff",
-    drawerInactive: "#666",
-    toggle: "#333",
-    toggleKnob: "#fff",
-  },
-  light: {
-    background: "#fafafa",
-    surface: "#fff",
-    text: "#111",
-    textSecondary: "#999",
-    link: "#0066cc",
-    border: "#ddd",
-    headerBg: "#fff",
-    drawerBg: "#fafafa",
-    drawerActive: "#111",
-    drawerInactive: "#999",
-    toggle: "#ddd",
-    toggleKnob: "#fff",
-  },
-}
-
 export function ThemeProvider({ children }) {
+  const systemScheme = useColorScheme()
   const [isDark, setIsDark] = useState(true)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    AsyncStorage.getItem("theme").then((stored) => {
+      if (stored !== null) {
+        setIsDark(stored === "dark")
+      } else if (systemScheme) {
+        setIsDark(systemScheme === "dark")
+      }
+      setLoaded(true)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (loaded) {
+      AsyncStorage.setItem("theme", isDark ? "dark" : "light")
+    }
+  }, [isDark, loaded])
 
   const toggleTheme = () => setIsDark((prev) => !prev)
-  const theme = isDark ? themes.dark : themes.light
+
+  const theme = {
+    colors,
+    typography,
+    spacing,
+    borderRadius,
+    shadows,
+    ...(isDark ? dark : light),
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, isDark, toggleTheme }}>

@@ -1,31 +1,62 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
+import { StyleSheet, Text, View, ScrollView } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
+import { useAuth } from "../contexts/AuthContext"
+import Header from "../components/Header"
+import Card from "../components/Card"
+import Avatar from "../components/Avatar"
+import Badge from "../components/Badge"
+import XPBar from "../components/XPBar"
 
 const sections = [
-  { id: "1", title: "Sección 1", screen: "Section1" },
-  { id: "2", title: "Sección 2", screen: "Section2" },
-  { id: "3", title: "Sección 3", screen: "Section3" },
+  { id: "1", title: "Pasos y Rutas", icon: "walk-outline", screen: "Section1", color: "#6c5ce7" },
+  { id: "2", title: "Hábitos y Tareas", icon: "checkbox-outline", screen: "Section2", color: "#00b894" },
+  { id: "3", title: "Calorías y Compras", icon: "restaurant-outline", screen: "Section3", color: "#e17055" },
 ]
 
 export default function HomeScreen({ navigation }) {
   const { theme } = useTheme()
+  const { userProfile } = useAuth()
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>Inicio</Text>
-      <View style={styles.list}>
-        {sections.map((section) => (
-          <TouchableOpacity
-            key={section.id}
-            style={[styles.item, { backgroundColor: theme.surface }]}
-            activeOpacity={0.6}
-            onPress={() => navigation.navigate(section.screen)}
-          >
-            <Text style={[styles.itemText, { color: theme.text }]}>{section.title}</Text>
-            <Text style={[styles.arrow, { color: theme.textSecondary }]}>›</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <Card variant="elevated" style={styles.profileCard}>
+          <View style={styles.profileRow}>
+            <Avatar name={userProfile?.nick || "U"} size="lg" level={8} />
+            <View style={styles.profileInfo}>
+              <Text style={[styles.greeting, { color: theme.text }]}>
+                ¡Buenas {userProfile?.nick || "Usuario"}!
+              </Text>
+              <Badge variant="xp" size="sm">Nivel 8</Badge>
+            </View>
+          </View>
+          <XPBar currentXP={750} maxXP={1000} level={8} style={styles.xpBar} />
+        </Card>
+
+        <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+          Acceso rápido
+        </Text>
+
+        <View style={styles.grid}>
+          {sections.map((section) => (
+            <Card
+              key={section.id}
+              variant="default"
+              onPress={() => navigation.navigate(section.screen)}
+              style={styles.sectionCard}
+            >
+              <View style={[styles.iconContainer, { backgroundColor: section.color + "20" }]}>
+                <Ionicons name={section.icon} size={28} color={section.color} />
+              </View>
+              <Text style={[styles.sectionName, { color: theme.text }]}>
+                {section.title}
+              </Text>
+            </Card>
+          ))}
+        </View>
+      </ScrollView>
     </View>
   )
 }
@@ -33,32 +64,57 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
+  },
+  content: {
+    flex: 1,
     paddingHorizontal: 24,
   },
-  title: {
-    fontSize: 34,
-    fontWeight: "700",
-    marginBottom: 40,
-    letterSpacing: -0.5,
+  profileCard: {
+    marginBottom: 24,
+    marginTop: 8,
   },
-  list: {
-    gap: 2,
-  },
-  item: {
+  profileRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    marginBottom: 16,
   },
-  itemText: {
+  profileInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  greeting: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  xpBar: {
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 16,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  grid: {
+    gap: 12,
+    paddingBottom: 24,
+  },
+  sectionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  sectionName: {
     fontSize: 17,
-    fontWeight: "500",
-  },
-  arrow: {
-    fontSize: 22,
-    fontWeight: "300",
+    fontWeight: "600",
   },
 })
