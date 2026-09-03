@@ -14,12 +14,13 @@ import { useAuth } from "../contexts/AuthContext"
 
 export default function LoginScreen({ navigation }) {
   const { theme } = useTheme()
-  const { login } = useAuth()
+  const { login, resetPassword } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [resetSent, setResetSent] = useState(false)
 
   async function handleLogin() {
     setError("")
@@ -38,6 +39,21 @@ export default function LoginScreen({ navigation }) {
       }
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleResetPassword() {
+    setError("")
+    setResetSent(false)
+    if (!email.trim()) {
+      setError("Introduce tu email para recuperar la contraseña")
+      return
+    }
+    try {
+      await resetPassword(email.trim())
+      setResetSent(true)
+    } catch (e) {
+      setError("No se pudo enviar el email de recuperación")
     }
   }
 
@@ -92,6 +108,18 @@ export default function LoginScreen({ navigation }) {
             {loading ? "Entrando..." : "Entrar"}
           </Text>
         </TouchableOpacity>
+
+        {resetSent ? (
+          <Text style={[styles.success, { color: theme.success || "#34c759" }]}>
+            Email de recuperación enviado. Revisa tu bandeja de entrada.
+          </Text>
+        ) : (
+          <TouchableOpacity onPress={handleResetPassword}>
+            <Text style={[styles.link, { color: theme.link }]}>
+              ¿Olvidaste tu contraseña?
+            </Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity onPress={() => navigation.navigate("Register")}>
           <Text style={[styles.link, { color: theme.link }]}>
@@ -157,6 +185,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   error: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  success: {
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 16,

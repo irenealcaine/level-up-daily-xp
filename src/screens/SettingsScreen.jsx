@@ -29,14 +29,19 @@ export default function SettingsScreen() {
       </View>
 
       {userProfile && (
-        <TouchableOpacity
-          style={[styles.card, { backgroundColor: theme.surface, marginTop: 12 }]}
-          activeOpacity={0.7}
-          onPress={logout}
-        >
-          <Text style={[styles.label, { color: "#e53935" }]}>Cerrar sesión</Text>
-        </TouchableOpacity>
+        <View style={[styles.card, { backgroundColor: theme.surface, marginTop: 12 }]}>
+          <Text style={[styles.label, { color: theme.text }]}>Sesión activa</Text>
+          <Text style={[styles.email, { color: theme.textSecondary }]}>{userProfile.email}</Text>
+        </View>
       )}
+
+      <TouchableOpacity
+        style={[styles.logoutButton, { backgroundColor: theme.surface, marginTop: 12 }]}
+        activeOpacity={0.7}
+        onPress={logout}
+      >
+        <Text style={[styles.logoutText, { color: "#e53935" }]}>Cerrar sesión</Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -76,5 +81,19 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
+  },
+  email: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  logoutButton: {
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  logoutText: {
+    fontSize: 17,
+    fontWeight: "600",
   },
 })

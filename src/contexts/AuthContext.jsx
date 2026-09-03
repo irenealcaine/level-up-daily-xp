@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
   reload,
 } from "firebase/auth"
 import { auth } from "../services/firebase"
@@ -73,8 +74,12 @@ export function AuthProvider({ children }) {
     return firebaseSignOut(auth)
   }
 
+  async function resetPassword(email) {
+    return sendPasswordResetEmail(auth, email)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, register, login, logout, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )
