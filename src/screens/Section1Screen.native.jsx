@@ -14,6 +14,8 @@ const initialRegion = {
   longitudeDelta: 0.08,
 }
 
+const hasMapApiKey = Boolean(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)
+
 export default function Section1Screen() {
   const { theme } = useTheme()
   const [location, setLocation] = useState(null)
@@ -62,11 +64,11 @@ export default function Section1Screen() {
         <Text style={[styles.title, { color: theme.text }]}>Pasos y rutas</Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Muévete un poco. Suma un montón.</Text>
         <View style={[styles.mapCard, { borderColor: theme.cardBorder }]}>
-          {Platform.OS === "web" ? (
+          {Platform.OS === "web" || !hasMapApiKey ? (
             <View style={[styles.mapFallback, { backgroundColor: theme.surfaceElevated }]}>
               <Ionicons name="map-outline" size={38} color={theme.colors.primary} />
-              <Text style={[styles.cardTitle, { color: theme.text }]}>El mapa estará disponible en móvil</Text>
-              <Text style={[styles.cardText, { color: theme.textSecondary }]}>Abre la app en Expo Go para ver tu posición.</Text>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>Falta configurar el mapa</Text>
+              <Text style={[styles.cardText, { color: theme.textSecondary }]}>Añade la clave de Google Maps para ver tu posición en la APK.</Text>
             </View>
           ) : (
             <MapView
@@ -82,14 +84,14 @@ export default function Section1Screen() {
               )}
             </MapView>
           )}
-          {status === "loading" && Platform.OS !== "web" && (
+          {status === "loading" && Platform.OS !== "web" && hasMapApiKey && (
             <View style={[styles.statusPill, { backgroundColor: theme.surface }]}>
               <ActivityIndicator size="small" color={theme.colors.primary} />
               <Text style={[styles.statusText, { color: theme.text }]}>Buscando tu posición...</Text>
             </View>
           )}
         </View>
-        {(status === "denied" || status === "error") && Platform.OS !== "web" && (
+        {(status === "denied" || status === "error") && Platform.OS !== "web" && hasMapApiKey && (
           <Card variant="elevated" style={styles.card}>
             <Text style={[styles.cardTitle, { color: theme.text }]}>No hemos encontrado tu posición</Text>
             <Text style={[styles.cardText, { color: theme.textSecondary }]}>Activa el permiso de ubicación para marcarte en el mapa.</Text>
