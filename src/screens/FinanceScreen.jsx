@@ -3,12 +3,15 @@ import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWind
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
+import { useAuth } from "../contexts/AuthContext"
+import { getFinanceData, saveFinanceData } from "../services/financeService"
 import Card from "../components/Card"
 import Input from "../components/Input"
 import Button from "../components/Button"
 
-const STORAGE_KEY = "financeEntries"
 const currentYear = new Date().getFullYear()
+const LOCAL_ENTRIES_KEY = "financeEntries"
+const LOCAL_GOAL_KEY = "financeGoal"
 
 function todayString() {
   return new Date().toISOString().slice(0, 10)
@@ -28,26 +31,99 @@ function getDayOfYear(dateString) {
   return Math.floor((date - start) / 86400000) + 1
 }
 
+function GoalForm({ theme, onSave, initialStart = "", initialTarget = "", compact = false }) {
+  const [startAmount, setStartAmount] = useState(String(initialStart))
+  const [targetAmount, setTargetAmount] = useState(String(initialTarget))
+  const [error, setError] = useState("")
+
+  const submit = () => {
+    const start = parseAmount(startAmount)
+    const target = parseAmount(targetAmount)
+    if (!Number.isFinite(start) || !Number.isFinite(target) || start < 0 || target < 0) {
+      setError("Introduce dos cantidades válidas")
+      return
+    }
+    setError("")
+    onSave({ startAmount: start, targetAmount: target })
+  }
+
+  return (
+    <Card variant={compact ? "default" : "elevated"} style={styles.formCard}>
+      <Text style={[styles.cardTitle, { color: theme.text }]}>{compact ? "Configura tu objetivo anual" : "¿Cuál es tu plan de ahorro?"}</Text>
+      <Text style={[styles.cardText, { color: theme.textSecondary }]}>Marca desde dónde partes y cuánto te gustaría tener el 31 de diciembre.</Text>
+      <Input label="Ahorro al inicio del año" placeholder="Ej. 1250,50" value={startAmount} onChangeText={setStartAmount} keyboardType="decimal-pad" icon="play-outline" />
+      <Input label="Objetivo al final del año" placeholder="Ej. 3000" value={targetAmount} onChangeText={setTargetAmount} keyboardType="decimal-pad" icon="flag-outline" />
+      {error ? <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text> : null}
+      <Button variant={compact ? "secondary" : "primary"} size="lg" onPress={submit} icon="trending-up-outline">
+        {compact ? "Guardar objetivo" : "Crear mi gráfico"}
+      </Button>
+    </Card>
+  )
+}
+
 export default function FinanceScreen() {
   const { theme } = useTheme()
+  const { user } = useAuth()
   const [entries, setEntries] = useState(null)
   const [amount, setAmount] = useState("")
   const [date, setDate] = useState(todayString())
   const [error, setError] = useState("")
   const [editingId, setEditingId] = useState(null)
+  const [goal, setGoal] = useState(null)
   const { width } = useWindowDimensions()
   const [chartWidth, setChartWidth] = useState(width - 80)
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then((stored) => setEntries(stored ? JSON.parse(stored) : []))
-      .catch(() => setEntries([]))
-  }, [])
+    if (!user?.uid) return
+
+    getFinanceData(user.uid)
+      .then(async ({ entries: storedEntries, goal: storedGoal }) => {
+        const [localEntries, localGoal] = await Promise.all([
+          AsyncStorage.getItem(LOCAL_ENTRIES_KEY),
+          AsyncStorage.getItem(LOCAL_GOAL_KEY),
+        ])
+        const migratedEntries = storedEntries.length === 0 && localEntries ? JSON.parse(localEntries) : storedEntries
+        const migratedGoal = !storedGoal && localGoal ? JSON.parse(localGoal) : storedGoal
+        setEntries(migratedEntries)
+        setGoal(migratedGoal)
+        if (migratedEntries !== storedEntries || migratedGoal !== storedGoal) {
+          await saveFinanceData(user.uid, migratedEntries, migratedGoal)
+          await AsyncStorage.multiRemove([LOCAL_ENTRIES_KEY, LOCAL_GOAL_KEY])
+        }
+      })
+      .catch(() => {
+        setEntries([])
+        setGoal(null)
+        setError("No se han podido cargar tus datos financieros")
+      })
+  }, [user?.uid])
 
   const saveEntries = (nextEntries) => {
     const sortedEntries = [...nextEntries].sort((a, b) => a.date.localeCompare(b.date))
     setEntries(sortedEntries)
-    return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(sortedEntries))
+    return saveFinanceData(user.uid, sortedEntries, goal).catch(() => {
+      setError("No se han podido guardar los cambios")
+    })
+  }
+
+  const saveGoal = (nextGoal) => {
+    setGoal(nextGoal)
+    return saveFinanceData(user.uid, entries, nextGoal).catch(() => {
+      setError("No se ha podido guardar el objetivo")
+    })
+  }
+
+  const createInitialPlan = (nextGoal) => {
+    const initialEntries = [{ id: `${Date.now()}`, amount: nextGoal.startAmount, date: `${currentYear}-01-01` }]
+    setGoal(nextGoal)
+    setEntries(initialEntries)
+    saveFinanceData(user.uid, initialEntries, nextGoal).catch(() => {
+      setError("No se ha podido guardar tu información financiera")
+    })
+  }
+
+  const updateGoal = (nextGoal) => {
+    saveGoal(nextGoal)
   }
 
   const saveEntry = () => {
@@ -106,13 +182,16 @@ export default function FinanceScreen() {
   }
 
   const chartEntries = useMemo(() => entries || [], [entries])
-  const maxAmount = Math.max(...chartEntries.map((entry) => entry.amount), 1)
+  const maxAmount = Math.max(...chartEntries.map((entry) => entry.amount), goal?.startAmount || 0, goal?.targetAmount || 0, 1)
   const chartHeight = 210
-  const chartPoints = chartEntries.map((entry) => ({
-    ...entry,
-    x: 10 + ((getDayOfYear(entry.date) - 1) / 364) * Math.max(chartWidth - 20, 1),
-    y: chartHeight - 20 - (entry.amount / maxAmount) * (chartHeight - 40),
-  }))
+  const getPlotPoint = (date, amount) => ({
+    x: 10 + ((getDayOfYear(date) - 1) / 364) * Math.max(chartWidth - 20, 1),
+    y: chartHeight - 20 - (amount / maxAmount) * (chartHeight - 40),
+  })
+  const chartPoints = chartEntries.map((entry) => ({ ...entry, ...getPlotPoint(entry.date, entry.amount) }))
+  const guidePoints = goal
+    ? [getPlotPoint(`${currentYear}-01-01`, goal.startAmount), getPlotPoint(`${currentYear}-12-31`, goal.targetAmount)]
+    : []
 
   if (entries === null) {
     return <View style={[styles.container, { backgroundColor: theme.background }]} />
@@ -126,22 +205,7 @@ export default function FinanceScreen() {
         </View>
         <Text style={[styles.title, { color: theme.text }]}>Tu dinero, a tu ritmo</Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Empezamos con una cifra y vamos viendo cómo evoluciona.</Text>
-        <Card variant="elevated" style={styles.formCard}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>¿Cuánto tienes ahorrado?</Text>
-          <Text style={[styles.cardText, { color: theme.textSecondary }]}>Será tu punto de partida para este año.</Text>
-          <Input
-            label="Ahorro actual"
-            placeholder="Ej. 1250,50"
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="decimal-pad"
-            icon="cash-outline"
-          />
-          {error ? <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text> : null}
-          <Button variant="primary" size="lg" onPress={saveEntry} icon="trending-up-outline">
-            Crear mi gráfico
-          </Button>
-        </Card>
+        <GoalForm theme={theme} onSave={createInitialPlan} />
       </ScrollView>
     )
   }
@@ -158,6 +222,8 @@ export default function FinanceScreen() {
         </View>
       </View>
 
+      {!goal && <GoalForm theme={theme} compact onSave={updateGoal} initialStart={chartEntries[0].amount} />}
+
       <Card variant="elevated" style={styles.chartCard}>
         <View style={styles.chartHeader}>
           <View>
@@ -173,6 +239,12 @@ export default function FinanceScreen() {
           {[0, 1, 2, 3, 4].map((line) => (
             <View key={line} style={[styles.gridLine, { top: line * 42, borderTopColor: theme.border }]} />
           ))}
+          {guidePoints.length === 2 && (() => {
+            const [start, end] = guidePoints
+            const length = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2)
+            const angle = Math.atan2(end.y - start.y, end.x - start.x)
+            return <View style={[styles.chartLine, styles.guideLine, { left: start.x, top: start.y - 1.5, width: length, backgroundColor: theme.colors.primary, transform: [{ rotate: `${angle}rad` }] }]} />
+          })()}
           {chartPoints.slice(1).map((point, index) => {
             const previous = chartPoints[index]
             const length = Math.sqrt((point.x - previous.x) ** 2 + (point.y - previous.y) ** 2)
@@ -180,7 +252,7 @@ export default function FinanceScreen() {
             return <View key={`${previous.id}-${point.id}`} style={[styles.chartLine, { left: previous.x, top: previous.y - 1.5, width: length, backgroundColor: theme.colors.coral, transform: [{ rotate: `${angle}rad` }] }]} />
           })}
           {chartPoints.map((point) => (
-            <View key={point.id} style={[styles.chartPoint, { left: point.x - 6, top: point.y - 6, backgroundColor: theme.colors.coral, borderColor: theme.surface }]} />
+            <View key={point.id} style={[styles.chartPoint, { left: point.x - 2, top: point.y - 2, backgroundColor: theme.colors.coral }]} />
           ))}
         </View>
         <View style={styles.chartAxis}>
@@ -203,6 +275,11 @@ export default function FinanceScreen() {
           {editingId && <Button variant="ghost" size="sm" onPress={cancelEditing}>Cancelar</Button>}
         </View>
       </Card>
+
+      {goal && <View style={styles.goalLink}>
+        <Ionicons name="flag-outline" size={16} color={theme.colors.primary} />
+        <Text style={[styles.goalLinkText, { color: theme.colors.primary }]}>Objetivo: {formatMoney(goal.targetAmount)} al final del año</Text>
+      </View>}
 
       <Text style={[styles.historyTitle, { color: theme.text }]}>Historial</Text>
       {chartEntries.slice().reverse().map((entry) => (
@@ -246,7 +323,8 @@ const styles = StyleSheet.create({
   chart: { height: 210, width: "100%", position: "relative", borderBottomWidth: 2 },
   gridLine: { position: "absolute", left: 0, right: 0, borderTopWidth: 1, borderStyle: "dashed" },
   chartLine: { position: "absolute", height: 3, transformOrigin: "left center", borderRadius: 2 },
-  chartPoint: { position: "absolute", width: 12, height: 12, borderRadius: 6, borderWidth: 3 },
+  guideLine: { opacity: 0.35 },
+  chartPoint: { position: "absolute", width: 4, height: 4, borderRadius: 2 },
   chartAxis: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
   axisText: { fontSize: 12, fontWeight: "600" },
   historyTitle: { fontSize: 20, fontWeight: "800", marginTop: 28, marginBottom: 8 },
@@ -255,4 +333,6 @@ const styles = StyleSheet.create({
   historyAmount: { fontSize: 16, fontWeight: "800", marginBottom: 3 },
   historyActions: { flexDirection: "row", gap: 8 },
   actionButton: { width: 36, height: 36, borderRadius: 10, justifyContent: "center", alignItems: "center" },
+  goalLink: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 16 },
+  goalLinkText: { fontSize: 13, fontWeight: "700" },
 })
