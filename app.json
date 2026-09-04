@@ -19,7 +19,11 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.irenealcaine.levelupdailyxp"
+      "package": "com.irenealcaine.levelupdailyxp",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -32,6 +36,11 @@
           "locationWhenInUsePermission": "Permite que Level Up Daily marque tu posición en el mapa."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "7e424ee9-decb-4274-a142-293ce9078eb4"
+      }
+    }
   }
 }
