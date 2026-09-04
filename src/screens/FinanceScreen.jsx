@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
+import { useProgress } from "../contexts/ProgressContext"
 import { getFinanceData, saveFinanceData } from "../services/financeService"
 import Card from "../components/Card"
 import Input from "../components/Input"
@@ -64,6 +65,7 @@ function GoalForm({ theme, onSave, initialStart = "", initialTarget = "", compac
 export default function FinanceScreen() {
   const { theme } = useTheme()
   const { user } = useAuth()
+  const { recordMission } = useProgress()
   const [entries, setEntries] = useState(null)
   const [amount, setAmount] = useState("")
   const [date, setDate] = useState(todayString())
@@ -101,15 +103,17 @@ export default function FinanceScreen() {
   const saveEntries = (nextEntries) => {
     const sortedEntries = [...nextEntries].sort((a, b) => a.date.localeCompare(b.date))
     setEntries(sortedEntries)
-    return saveFinanceData(user.uid, sortedEntries, goal).catch(() => {
+    return saveFinanceData(user.uid, sortedEntries, goal).catch((error) => {
       setError("No se han podido guardar los cambios")
+      throw error
     })
   }
 
   const saveGoal = (nextGoal) => {
     setGoal(nextGoal)
-    return saveFinanceData(user.uid, entries, nextGoal).catch(() => {
+    return saveFinanceData(user.uid, entries, nextGoal).catch((error) => {
       setError("No se ha podido guardar el objetivo")
+      throw error
     })
   }
 
@@ -117,7 +121,9 @@ export default function FinanceScreen() {
     const initialEntries = [{ id: `${Date.now()}`, amount: nextGoal.startAmount, date: `${currentYear}-01-01` }]
     setGoal(nextGoal)
     setEntries(initialEntries)
-    saveFinanceData(user.uid, initialEntries, nextGoal).catch(() => {
+    saveFinanceData(user.uid, initialEntries, nextGoal).then(() => {
+      return recordMission({ missionId: "finance_first_goal", period: "achievement", goal: 1, reward: 25 })
+    }).catch(() => {
       setError("No se ha podido guardar tu información financiera")
     })
   }
@@ -126,7 +132,7 @@ export default function FinanceScreen() {
     saveGoal(nextGoal)
   }
 
-  const saveEntry = () => {
+  const saveEntry = async () => {
     setError("")
     const parsedAmount = parseAmount(amount)
 
@@ -143,7 +149,15 @@ export default function FinanceScreen() {
       ? entries.map((entry) => entry.id === editingId ? { ...entry, amount: parsedAmount, date } : entry)
       : [...entries, { id: `${Date.now()}`, amount: parsedAmount, date }]
 
-    saveEntries(nextEntries)
+    try {
+      await saveEntries(nextEntries)
+      if (!editingId) {
+        await recordMission({ missionId: "finance_daily_balance", period: "daily", goal: 1, reward: 5 })
+        await recordMission({ missionId: "finance_weekly_movements", period: "weekly", goal: 7, reward: 25 })
+      }
+    } catch (saveError) {
+      return
+    }
     setAmount("")
     setDate(todayString())
     setEditingId(null)

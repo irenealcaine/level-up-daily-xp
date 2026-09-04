@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
+import { useProgress } from "../contexts/ProgressContext"
 import Card from "../components/Card"
 import Avatar from "../components/Avatar"
 import Badge from "../components/Badge"
@@ -18,23 +19,26 @@ const sections = [
 
 const missions = {
   daily: [
-    { icon: "create-outline", title: "Registrar el saldo del día", detail: "0/1", progress: 0, xp: 5, colorKey: "primary" },
-    { icon: "eye-outline", title: "Revisar un gasto", detail: "1/1", progress: 1, xp: 5, colorKey: "success" },
-    { icon: "hourglass-outline", title: "Evitar compras impulsivas", detail: "0/1", progress: 0, xp: 10, colorKey: "coral" },
+    { id: "finance_daily_balance", icon: "create-outline", title: "Registrar el saldo del día", goal: 1, xp: 5, period: "daily", colorKey: "primary" },
+    { id: "finance_daily_review", icon: "eye-outline", title: "Revisar un gasto", goal: 1, xp: 5, period: "daily", colorKey: "success" },
+    { id: "finance_daily_impulse", icon: "hourglass-outline", title: "Evitar compras impulsivas", goal: 1, xp: 10, period: "daily", colorKey: "coral" },
   ],
   weekly: [
-    { icon: "list-outline", title: "Registrar todos tus movimientos", detail: "2/7", progress: 2 / 7, xp: 25, colorKey: "accent" },
-    { icon: "flag-outline", title: "Ahorrar tu objetivo semanal", detail: "0/1", progress: 0, xp: 40, colorKey: "warning" },
+    { id: "finance_weekly_movements", icon: "list-outline", title: "Registrar todos tus movimientos", goal: 7, xp: 25, period: "weekly", colorKey: "accent" },
+    { id: "finance_weekly_saving", icon: "flag-outline", title: "Ahorrar tu objetivo semanal", goal: 1, xp: 40, period: "weekly", colorKey: "warning" },
   ],
   achievements: [
-    { icon: "sparkles-outline", title: "Crear tu primer objetivo", detail: "Desbloqueado", progress: 1, xp: 25, colorKey: "xp" },
-    { icon: "calendar-outline", title: "Registrar 7 días seguidos", detail: "3/7", progress: 3 / 7, xp: 50, colorKey: "coral" },
+    { id: "finance_first_goal", icon: "sparkles-outline", title: "Crear tu primer objetivo", goal: 1, xp: 25, period: "achievement", colorKey: "xp" },
+    { id: "finance_seven_days", icon: "calendar-outline", title: "Registrar 7 días seguidos", goal: 7, xp: 50, period: "achievement", colorKey: "coral" },
   ],
 }
 
 export default function HomeScreen({ navigation }) {
   const { theme } = useTheme()
   const { userProfile } = useAuth()
+  const { progress, getMissionProgress } = useProgress()
+  const userXP = progress?.xp || 0
+  const userLevel = progress?.level || 1
   const [expandedGroups, setExpandedGroups] = useState({ daily: true, weekly: true, achievements: true })
   const [completedGroups, setCompletedGroups] = useState({})
 
@@ -47,7 +51,14 @@ export default function HomeScreen({ navigation }) {
   }
 
   const renderMissions = (group) => {
-    const groupMissions = missions[group]
+    const groupMissions = missions[group].map((mission) => {
+      const completedSteps = getMissionProgress(mission.id, mission.period)
+      return {
+        ...mission,
+        progress: completedSteps / mission.goal,
+        detail: completedSteps >= mission.goal && mission.period === "achievement" ? "Desbloqueado" : `${completedSteps}/${mission.goal}`,
+      }
+    })
     const hasCompleted = groupMissions.some((mission) => mission.progress >= 1)
     const visibleMissions = groupMissions
       .slice()
@@ -79,16 +90,16 @@ export default function HomeScreen({ navigation }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Card variant="elevated" style={styles.profileCard}>
           <View style={styles.profileRow}>
-            <Avatar name={userProfile?.nick || "U"} size="lg" level={8} />
+            <Avatar name={userProfile?.nick || "U"} size="lg" level={userLevel} />
             <View style={styles.profileInfo}>
               <Text style={[styles.greeting, { color: theme.text }]}>
                 ¡Buenas, {userProfile?.nick || "Usuario"}!
               </Text>
               <Text style={[styles.motto, { color: theme.textSecondary }]}>¿Qué toca subir hoy?</Text>
-              <Badge variant="xp" size="sm">Nivel 8</Badge>
+              <Badge variant="xp" size="sm">Nivel {userLevel}</Badge>
             </View>
           </View>
-          <XPBar currentXP={750} maxXP={1000} level={8} style={styles.xpBar} />
+          <XPBar currentXP={userXP % 100} maxXP={100} level={userLevel} style={styles.xpBar} />
         </Card>
 
         <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Retos activos</Text>
