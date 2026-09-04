@@ -7,7 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "levelupdailyxp",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.irenealcaine.levelupdailyxp"
@@ -35,7 +34,8 @@
         {
           "locationWhenInUsePermission": "Permite que Level Up Daily marque tu posición en el mapa."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {
