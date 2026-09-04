@@ -220,7 +220,7 @@ export default function FinanceScreen() {
   if (entries.length === 0) {
     return (
       <ScrollView contentContainerStyle={styles.emptyContent} style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={[styles.heroIcon, { backgroundColor: theme.colors.coral }]}>
+        <View style={[styles.heroIcon, { backgroundColor: theme.colors.warning }]}>
           <Ionicons name="wallet-outline" size={38} color="#ffffff" />
         </View>
         <Text style={[styles.title, { color: theme.text }]}>Tu dinero, a tu ritmo</Text>
@@ -237,7 +237,7 @@ export default function FinanceScreen() {
           <Text style={[styles.title, { color: theme.text }]}>Mis finanzas</Text>
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Así va tu ahorro en {currentYear}.</Text>
         </View>
-        <View style={[styles.heroIconSmall, { backgroundColor: theme.colors.coral }]}>
+        <View style={[styles.heroIconSmall, { backgroundColor: theme.colors.warning }]}>
           <Ionicons name="wallet-outline" size={25} color="#ffffff" />
         </View>
       </View>
@@ -250,7 +250,7 @@ export default function FinanceScreen() {
             <Text style={[styles.chartLabel, { color: theme.textSecondary }]}>Ahorro registrado</Text>
             <Text style={[styles.total, { color: theme.text }]}>{formatMoney(chartEntries[chartEntries.length - 1].amount)}</Text>
           </View>
-          <Ionicons name="stats-chart-outline" size={28} color={theme.colors.coral} />
+          <Ionicons name="stats-chart-outline" size={28} color={theme.colors.warning} />
         </View>
         <View
           style={[styles.chart, { borderBottomColor: theme.border }]}
@@ -271,10 +271,10 @@ export default function FinanceScreen() {
             const previous = chartPoints[index]
             const length = Math.sqrt((point.x - previous.x) ** 2 + (point.y - previous.y) ** 2)
             const angle = Math.atan2(point.y - previous.y, point.x - previous.x)
-            return <View key={`${previous.id}-${point.id}`} style={[styles.chartLine, { left: previous.x, top: previous.y - 1.5, width: length, backgroundColor: theme.colors.coral, transform: [{ rotate: `${angle}rad` }] }]} />
+            return <View key={`${previous.id}-${point.id}`} style={[styles.chartLine, { left: previous.x, top: previous.y - 1.5, width: length, backgroundColor: theme.colors.warning, transform: [{ rotate: `${angle}rad` }] }]} />
           })}
           {chartPoints.map((point) => (
-            <View key={point.id} style={[styles.chartPoint, { left: point.x - 2, top: point.y - 2, backgroundColor: theme.colors.coral }]} />
+            <View key={point.id} style={[styles.chartPoint, { left: point.x - 2, top: point.y - 2, backgroundColor: theme.colors.warning }]} />
           ))}
         </View>
         <View style={styles.chartAxis}>
@@ -305,7 +305,7 @@ export default function FinanceScreen() {
 
       <Text style={[styles.historyTitle, { color: theme.text }]}>Historial</Text>
       {chartEntries.slice().reverse().map((entry) => (
-        <View key={entry.id} style={[styles.historyRow, { borderBottomColor: theme.border }]}> 
+        <View key={entry.id} style={[styles.historyRow, { borderBottomColor: theme.border }]}>
           <View>
             <Text style={[styles.historyAmount, { color: theme.text }]}>{formatMoney(entry.amount)}</Text>
             <Text style={[styles.historyDate, { color: theme.textSecondary }]}>{entry.date}</Text>
