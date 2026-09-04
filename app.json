@@ -4,7 +4,7 @@
     "slug": "level-up-daily-xp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/levelup-square.png",
     "scheme": "levelupdailyxp",
     "userInterfaceStyle": "dark",
     "ios": {
@@ -13,10 +13,9 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#1a1a2e",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/levelup-square.png",
+        "monochromeImage": "./assets/levelup-square.png"
       },
       "package": "com.irenealcaine.levelupdailyxp",
       "permissions": [
@@ -25,7 +24,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/levelup-square.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -35,7 +34,16 @@
           "locationWhenInUsePermission": "Permite que Level Up Daily marque tu posición en el mapa."
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/levelup-square.png",
+          "resizeMode": "contain",
+          "imageWidth": 200
+        }
+      ]
     ],
     "extra": {
       "eas": {
