@@ -42,12 +42,15 @@ export default function Card({
         return {
           ...base,
           backgroundColor: theme.surface,
+          borderWidth: 2,
+          borderColor: theme.cardBorder,
         }
       case "elevated":
         return {
           ...base,
-          backgroundColor: theme.surface,
-          ...theme.shadows.md,
+          backgroundColor: theme.surfaceElevated,
+          borderWidth: 2,
+          borderColor: theme.cardBorder,
         }
       case "outlined":
         return {

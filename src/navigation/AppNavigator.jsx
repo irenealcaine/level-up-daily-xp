@@ -67,9 +67,9 @@ function AppDrawer() {
       }}
     >
       <Drawer.Screen name="Home" component={HomeScreen} options={{ title: "Inicio" }} />
-      <Drawer.Screen name="Section1" component={Section1Screen} options={{ title: "Sección 1" }} />
-      <Drawer.Screen name="Section2" component={Section2Screen} options={{ title: "Sección 2" }} />
-      <Drawer.Screen name="Section3" component={Section3Screen} options={{ title: "Sección 3" }} />
+      <Drawer.Screen name="Section1" component={Section1Screen} options={{ title: "Pasos y rutas" }} />
+      <Drawer.Screen name="Section2" component={Section2Screen} options={{ title: "Hábitos y tareas" }} />
+      <Drawer.Screen name="Section3" component={Section3Screen} options={{ title: "Calorías y compras" }} />
       <Drawer.Screen name="Settings" component={SettingsScreen} options={{ title: "Ajustes" }} />
     </Drawer.Navigator>
   )

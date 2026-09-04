@@ -1,12 +1,24 @@
 import { StyleSheet, Text, View } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
+import Card from "../components/Card"
 
 export default function Section1Screen() {
   const { theme } = useTheme()
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.textSecondary }]}>Sección 1</Text>
+      <View style={styles.content}>
+        <View style={[styles.icon, { backgroundColor: theme.colors.primary }]}>
+          <Ionicons name="walk-outline" size={34} color="#ffffff" />
+        </View>
+        <Text style={[styles.title, { color: theme.text }]}>Pasos y rutas</Text>
+        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Muévete un poco. Suma un montón.</Text>
+        <Card variant="elevated" style={styles.card}>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Misión de hoy</Text>
+          <Text style={[styles.cardText, { color: theme.textSecondary }]}>Registra tus pasos y consigue XP por mantenerte en movimiento.</Text>
+        </Card>
+      </View>
     </View>
   )
 }
@@ -14,11 +26,39 @@ export default function Section1Screen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  content: {
+    padding: 24,
     alignItems: "center",
   },
+  icon: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 18,
+  },
   title: {
-    fontSize: 20,
-    fontWeight: "500",
+    fontSize: 28,
+    fontWeight: "800",
+  },
+  subtitle: {
+    fontSize: 16,
+    marginTop: 6,
+    marginBottom: 24,
+  },
+  card: {
+    width: "100%",
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 8,
+  },
+  cardText: {
+    fontSize: 15,
+    lineHeight: 22,
   },
 })

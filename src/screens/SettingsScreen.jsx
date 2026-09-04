@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native"
+import { Pressable, StyleSheet, Text, View } from "react-native"
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -40,7 +40,11 @@ export default function SettingsScreen() {
                 {isDark ? "Activado" : "Desactivado"}
               </Text>
             </View>
-            <Animated.View
+            <Pressable
+              onPress={handleToggle}
+              accessibilityRole="switch"
+              accessibilityLabel="Cambiar modo oscuro"
+              accessibilityState={{ checked: isDark }}
               style={[
                 styles.toggle,
                 {
@@ -55,7 +59,7 @@ export default function SettingsScreen() {
                   { backgroundColor: theme.toggleKnob },
                 ]}
               />
-            </Animated.View>
+            </Pressable>
           </View>
         </Card>
 

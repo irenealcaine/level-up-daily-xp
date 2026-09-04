@@ -2,16 +2,15 @@ import { StyleSheet, Text, View, ScrollView } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
-import Header from "../components/Header"
 import Card from "../components/Card"
 import Avatar from "../components/Avatar"
 import Badge from "../components/Badge"
 import XPBar from "../components/XPBar"
 
 const sections = [
-  { id: "1", title: "Pasos y Rutas", icon: "walk-outline", screen: "Section1", color: "#6c5ce7" },
-  { id: "2", title: "Hábitos y Tareas", icon: "checkbox-outline", screen: "Section2", color: "#00b894" },
-  { id: "3", title: "Calorías y Compras", icon: "restaurant-outline", screen: "Section3", color: "#e17055" },
+  { id: "1", title: "Pasos y rutas", icon: "walk-outline", screen: "Section1", colorKey: "primary" },
+  { id: "2", title: "Hábitos y tareas", icon: "checkbox-outline", screen: "Section2", colorKey: "success" },
+  { id: "3", title: "Calorías y compras", icon: "restaurant-outline", screen: "Section3", colorKey: "coral" },
 ]
 
 export default function HomeScreen({ navigation }) {
@@ -27,8 +26,9 @@ export default function HomeScreen({ navigation }) {
             <Avatar name={userProfile?.nick || "U"} size="lg" level={8} />
             <View style={styles.profileInfo}>
               <Text style={[styles.greeting, { color: theme.text }]}>
-                ¡Buenas {userProfile?.nick || "Usuario"}!
+                ¡Buenas, {userProfile?.nick || "Usuario"}!
               </Text>
+              <Text style={[styles.motto, { color: theme.textSecondary }]}>¿Qué toca subir hoy?</Text>
               <Badge variant="xp" size="sm">Nivel 8</Badge>
             </View>
           </View>
@@ -36,7 +36,7 @@ export default function HomeScreen({ navigation }) {
         </Card>
 
         <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
-          Acceso rápido
+          Misiones de hoy
         </Text>
 
         <View style={styles.grid}>
@@ -47,8 +47,8 @@ export default function HomeScreen({ navigation }) {
               onPress={() => navigation.navigate(section.screen)}
               style={styles.sectionCard}
             >
-              <View style={[styles.iconContainer, { backgroundColor: section.color + "20" }]}>
-                <Ionicons name={section.icon} size={28} color={section.color} />
+              <View style={[styles.iconContainer, { backgroundColor: theme.colors[section.colorKey] }]}>
+                <Ionicons name={section.icon} size={28} color="#ffffff" />
               </View>
               <Text style={[styles.sectionName, { color: theme.text }]}>
                 {section.title}
@@ -85,7 +85,12 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  motto: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 8,
   },
   xpBar: {
     marginTop: 8,

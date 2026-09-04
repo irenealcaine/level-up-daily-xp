@@ -65,7 +65,7 @@ export default function XPBar({
           styles.track,
           {
             height,
-            backgroundColor: theme.surface,
+            backgroundColor: theme.border,
             borderRadius: height / 2,
           },
         ]}
@@ -123,12 +123,12 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     right: 0,
-    backgroundColor: "#ffd32a",
+              backgroundColor: theme.colors.xp,
   },
   fill: {
     position: "absolute",
     left: 0,
     top: 0,
-    backgroundColor: "#ffd32a",
+              backgroundColor: theme.colors.xp,
   },
 })

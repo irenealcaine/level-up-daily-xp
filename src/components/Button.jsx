@@ -50,11 +50,11 @@ export default function Button({
 
     switch (variant) {
       case "primary":
-        return { ...base, backgroundColor: theme.colors.primary }
+        return { ...base, backgroundColor: theme.colors.primary, borderBottomWidth: 4, borderBottomColor: theme.cardBorder }
       case "secondary":
-        return { ...base, backgroundColor: theme.colors.accent }
+        return { ...base, backgroundColor: theme.colors.accent, borderBottomWidth: 4, borderBottomColor: theme.cardBorder }
       case "outline":
-        return { ...base, backgroundColor: "transparent", borderWidth: 2, borderColor: theme.colors.primary }
+        return { ...base, backgroundColor: "transparent", borderWidth: 2, borderColor: theme.colors.primary, borderBottomWidth: 4 }
       case "ghost":
         return { ...base, backgroundColor: "transparent" }
       default:
