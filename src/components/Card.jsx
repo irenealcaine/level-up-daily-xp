@@ -33,7 +33,8 @@ export default function Card({
 
   const getContainerStyle = () => {
     const base = {
-      padding: theme.spacing.md,
+      width: "100%",
+      padding: theme.spacing.sm,
       borderRadius: theme.borderRadius.md,
     }
 

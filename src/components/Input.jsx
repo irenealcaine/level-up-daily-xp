@@ -76,26 +76,26 @@ export default function Input({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
   },
   icon: {
-    marginRight: 12,
+    marginRight: 8,
   },
   inputContainer: {
     flex: 1,
     borderWidth: 1.5,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   input: {
     fontSize: 16,
@@ -108,6 +108,6 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 13,
     fontWeight: "500",
-    marginTop: 6,
+    marginTop: 4,
   },
 })

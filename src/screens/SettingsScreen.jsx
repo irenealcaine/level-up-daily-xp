@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   card: {
     marginBottom: 12,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 12,
   },
   profileName: {
     fontSize: 17,
@@ -149,6 +149,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   logoutButton: {
-    marginTop: 12,
+    marginTop: 8,
   },
 })

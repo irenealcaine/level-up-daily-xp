@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: 24,
   },
   title: {
     fontSize: 34,
     fontWeight: "700",
     letterSpacing: -0.5,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   error: {
     fontSize: 14,

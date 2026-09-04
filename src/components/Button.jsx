@@ -8,9 +8,9 @@ import { Ionicons } from "@expo/vector-icons"
 import { useTheme } from "../contexts/ThemeContext"
 
 const SIZES = {
-  sm: { paddingVertical: 8, paddingHorizontal: 16, fontSize: 14, iconSize: 16 },
-  md: { paddingVertical: 14, paddingHorizontal: 24, fontSize: 16, iconSize: 20 },
-  lg: { paddingVertical: 18, paddingHorizontal: 32, fontSize: 18, iconSize: 22 },
+  sm: { paddingVertical: 6, paddingHorizontal: 12, fontSize: 13, iconSize: 15 },
+  md: { paddingVertical: 10, paddingHorizontal: 18, fontSize: 15, iconSize: 18 },
+  lg: { paddingVertical: 14, paddingHorizontal: 22, fontSize: 16, iconSize: 20 },
 }
 
 export default function Button({

@@ -68,20 +68,20 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   profileCard: {
-    marginBottom: 24,
-    marginTop: 8,
+    marginBottom: 16,
+    marginTop: 4,
   },
   profileRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   profileInfo: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 12,
   },
   greeting: {
     fontSize: 18,
@@ -99,28 +99,29 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    marginBottom: 16,
+    marginBottom: 10,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
   grid: {
-    gap: 12,
-    paddingBottom: 24,
+    gap: 8,
+    paddingBottom: 16,
   },
   sectionCard: {
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
   },
   iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
+    marginRight: 12,
   },
   sectionName: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "600",
   },
 })
