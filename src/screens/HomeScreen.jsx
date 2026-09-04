@@ -11,6 +11,7 @@ const sections = [
   { id: "1", title: "Pasos y rutas", icon: "walk-outline", screen: "Section1", colorKey: "primary" },
   { id: "2", title: "Hábitos y tareas", icon: "checkbox-outline", screen: "Section2", colorKey: "success" },
   { id: "3", title: "Calorías y compras", icon: "restaurant-outline", screen: "Section3", colorKey: "coral" },
+  { id: "4", title: "Finanzas", icon: "wallet-outline", screen: "Finance", colorKey: "warning" },
 ]
 
 export default function HomeScreen({ navigation }) {

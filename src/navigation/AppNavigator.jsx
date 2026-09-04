@@ -9,6 +9,7 @@ import HomeScreen from "../screens/HomeScreen"
 import Section1Screen from "../screens/Section1Screen"
 import Section2Screen from "../screens/Section2Screen"
 import Section3Screen from "../screens/Section3Screen"
+import FinanceScreen from "../screens/FinanceScreen"
 import SettingsScreen from "../screens/SettingsScreen"
 
 const Drawer = createDrawerNavigator()
@@ -70,6 +71,7 @@ function AppDrawer() {
       <Drawer.Screen name="Section1" component={Section1Screen} options={{ title: "Pasos y rutas" }} />
       <Drawer.Screen name="Section2" component={Section2Screen} options={{ title: "Hábitos y tareas" }} />
       <Drawer.Screen name="Section3" component={Section3Screen} options={{ title: "Calorías y compras" }} />
+      <Drawer.Screen name="Finance" component={FinanceScreen} options={{ title: "Finanzas" }} />
       <Drawer.Screen name="Settings" component={SettingsScreen} options={{ title: "Ajustes" }} />
     </Drawer.Navigator>
   )
