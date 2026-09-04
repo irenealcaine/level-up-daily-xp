@@ -25,6 +25,13 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": []
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Permite que Level Up Daily marque tu posición en el mapa."
+        }
+      ]
+    ]
   }
 }

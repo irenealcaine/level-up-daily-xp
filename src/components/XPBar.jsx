@@ -77,6 +77,7 @@ export default function XPBar({
             {
               height,
               borderRadius: height / 2,
+              backgroundColor: theme.colors.xp,
             },
           ]}
         />
@@ -87,6 +88,7 @@ export default function XPBar({
             {
               height,
               borderRadius: height / 2,
+              backgroundColor: theme.colors.xp,
             },
           ]}
         />
@@ -123,12 +125,10 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     right: 0,
-              backgroundColor: theme.colors.xp,
   },
   fill: {
     position: "absolute",
     left: 0,
     top: 0,
-              backgroundColor: theme.colors.xp,
   },
 })

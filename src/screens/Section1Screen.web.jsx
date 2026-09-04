@@ -7,7 +7,7 @@ export default function Section1Screen() {
   const { theme } = useTheme()
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.background }] }>
       <View style={styles.content}>
         <View style={[styles.icon, { backgroundColor: theme.colors.primary }]}>
           <Ionicons name="walk-outline" size={34} color="#ffffff" />
@@ -15,8 +15,9 @@ export default function Section1Screen() {
         <Text style={[styles.title, { color: theme.text }]}>Pasos y rutas</Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Muévete un poco. Suma un montón.</Text>
         <Card variant="elevated" style={styles.card}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Misión de hoy</Text>
-          <Text style={[styles.cardText, { color: theme.textSecondary }]}>Registra tus pasos y consigue XP por mantenerte en movimiento.</Text>
+          <Ionicons name="map-outline" size={38} color={theme.colors.primary} />
+          <Text style={[styles.cardTitle, { color: theme.text }]}>El mapa estará disponible en móvil</Text>
+          <Text style={[styles.cardText, { color: theme.textSecondary }]}>Abre la app con Expo Go en Android o iOS para ver tu posición.</Text>
         </Card>
       </View>
     </View>
@@ -26,7 +27,6 @@ export default function Section1Screen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "transparent",
   },
   content: {
     padding: 24,
@@ -51,14 +51,18 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
+    alignItems: "center",
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "800",
+    marginTop: 16,
     marginBottom: 8,
+    textAlign: "center",
   },
   cardText: {
     fontSize: 15,
     lineHeight: 22,
+    textAlign: "center",
   },
 })
