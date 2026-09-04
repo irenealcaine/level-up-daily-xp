@@ -182,11 +182,17 @@ export default function FinanceScreen() {
   }
 
   const chartEntries = useMemo(() => entries || [], [entries])
-  const maxAmount = Math.max(...chartEntries.map((entry) => entry.amount), goal?.startAmount || 0, goal?.targetAmount || 0, 1)
+  const chartValues = [
+    ...chartEntries.map((entry) => entry.amount),
+    ...(goal ? [goal.startAmount, goal.targetAmount] : []),
+  ]
+  const minAmount = Math.min(...chartValues)
+  const maxAmount = Math.max(...chartValues)
+  const chartRange = Math.max(maxAmount - minAmount, 1)
   const chartHeight = 210
   const getPlotPoint = (date, amount) => ({
     x: 10 + ((getDayOfYear(date) - 1) / 364) * Math.max(chartWidth - 20, 1),
-    y: chartHeight - 20 - (amount / maxAmount) * (chartHeight - 40),
+    y: chartHeight - 20 - ((amount - minAmount) / chartRange) * (chartHeight - 40),
   })
   const chartPoints = chartEntries.map((entry) => ({ ...entry, ...getPlotPoint(entry.date, entry.amount) }))
   const guidePoints = goal
@@ -236,6 +242,8 @@ export default function FinanceScreen() {
           style={[styles.chart, { borderBottomColor: theme.border }]}
           onLayout={(event) => setChartWidth(event.nativeEvent.layout.width)}
         >
+          <Text style={[styles.yLabel, styles.yLabelTop, { color: theme.textSecondary, backgroundColor: theme.surface }]}>{formatMoney(maxAmount)}</Text>
+          <Text style={[styles.yLabel, styles.yLabelBottom, { color: theme.textSecondary, backgroundColor: theme.surface }]}>{formatMoney(minAmount)}</Text>
           {[0, 1, 2, 3, 4].map((line) => (
             <View key={line} style={[styles.gridLine, { top: line * 42, borderTopColor: theme.border }]} />
           ))}
@@ -321,6 +329,9 @@ const styles = StyleSheet.create({
   chartLabel: { fontSize: 13, fontWeight: "600" },
   total: { fontSize: 28, fontWeight: "800", marginTop: 4 },
   chart: { height: 210, width: "100%", position: "relative", borderBottomWidth: 2 },
+  yLabel: { position: "absolute", left: 4, zIndex: 2, fontSize: 10, fontWeight: "700", paddingHorizontal: 2 },
+  yLabelTop: { top: 2 },
+  yLabelBottom: { bottom: 2 },
   gridLine: { position: "absolute", left: 0, right: 0, borderTopWidth: 1, borderStyle: "dashed" },
   chartLine: { position: "absolute", height: 3, transformOrigin: "left center", borderRadius: 2 },
   guideLine: { opacity: 0.35 },
